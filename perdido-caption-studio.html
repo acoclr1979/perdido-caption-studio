@@ -1,0 +1,730 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Perdido Key · Caption Studio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Mono:wght@400;500&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --sand: #f0e8d8;
+    --sand-dark: #e0d2ba;
+    --navy: #1a2c42;
+    --navy-light: #243852;
+    --coral: #c96a3e;
+    --coral-light: #e8855a;
+    --sun: #e8b84b;
+    --foam: #f7f3ec;
+    --ink: #2a1f14;
+    --mist: #8a9aaa;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background-color: var(--navy);
+    background-image:
+      radial-gradient(ellipse at 20% 0%, rgba(232,184,75,0.08) 0%, transparent 50%),
+      radial-gradient(ellipse at 80% 100%, rgba(201,106,62,0.08) 0%, transparent 50%);
+    min-height: 100vh;
+    font-family: 'Lato', sans-serif;
+    color: var(--sand);
+    padding: 40px 20px 80px;
+  }
+
+  .masthead {
+    text-align: center;
+    margin-bottom: 24px;
+  }
+
+  .masthead-rule {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--sun), transparent);
+    margin-bottom: 20px;
+    opacity: 0.4;
+  }
+
+  .masthead-eyebrow {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.25em;
+    color: var(--sun);
+    text-transform: uppercase;
+    margin-bottom: 10px;
+    opacity: 0.8;
+  }
+
+  .masthead h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(28px, 6vw, 48px);
+    font-weight: 400;
+    color: var(--sand);
+    line-height: 1.1;
+  }
+
+  .masthead h1 em { font-style: italic; color: var(--sun); }
+
+  .masthead-sub {
+    font-size: 13px;
+    color: var(--mist);
+    margin-top: 10px;
+    letter-spacing: 0.04em;
+  }
+
+  /* API Key bar */
+  .apikey-bar {
+    max-width: 680px;
+    margin: 0 auto 28px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 4px;
+    padding: 14px 18px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .apikey-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--sun);
+    white-space: nowrap;
+    opacity: 0.8;
+  }
+
+  .apikey-input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid rgba(255,255,255,0.2);
+    padding: 4px 0;
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    color: var(--sand);
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .apikey-input::placeholder { color: var(--mist); opacity: 0.5; }
+  .apikey-input:focus { border-bottom-color: var(--sun); }
+
+  .apikey-saved {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: var(--sun);
+    opacity: 0;
+    transition: opacity 0.4s;
+    white-space: nowrap;
+  }
+
+  .card {
+    background: var(--foam);
+    border-radius: 4px;
+    padding: 32px;
+    max-width: 680px;
+    margin: 0 auto 24px;
+    color: var(--ink);
+    box-shadow: 0 8px 40px rgba(0,0,0,0.3);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--coral), var(--sun));
+  }
+
+  .card-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--mist);
+    margin-bottom: 20px;
+  }
+
+  .mode-toggle {
+    display: flex;
+    gap: 2px;
+    background: var(--sand-dark);
+    border-radius: 4px;
+    padding: 3px;
+    margin-bottom: 28px;
+  }
+
+  .mode-btn {
+    flex: 1;
+    padding: 10px 16px;
+    border: none;
+    border-radius: 3px;
+    background: transparent;
+    font-family: 'Lato', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    cursor: pointer;
+    color: var(--mist);
+    transition: all 0.2s;
+  }
+
+  .mode-btn.active { background: var(--navy); color: var(--sand); }
+
+  .countdown-control { margin-bottom: 24px; }
+
+  .field-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--navy);
+    margin-bottom: 8px;
+    display: block;
+    opacity: 0.6;
+  }
+
+  .day-selector {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .day-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 52px;
+    font-weight: 700;
+    color: var(--navy);
+    line-height: 1;
+    min-width: 80px;
+    text-align: center;
+  }
+
+  .day-context { font-size: 13px; color: var(--mist); line-height: 1.5; }
+  .day-context strong { display: block; font-size: 15px; color: var(--navy); font-weight: 700; }
+
+  .stepper { display: flex; flex-direction: column; gap: 4px; }
+
+  .step-btn {
+    width: 32px; height: 32px;
+    border: 1.5px solid var(--sand-dark);
+    border-radius: 3px;
+    background: white;
+    font-size: 18px;
+    cursor: pointer;
+    color: var(--navy);
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.15s;
+    line-height: 1;
+  }
+
+  .step-btn:hover { background: var(--sand-dark); }
+
+  .scene-area { margin-bottom: 24px; }
+
+  textarea {
+    width: 100%;
+    border: 1.5px solid var(--sand-dark);
+    border-radius: 3px;
+    padding: 12px 14px;
+    font-family: 'Lato', sans-serif;
+    font-size: 14px;
+    line-height: 1.6;
+    color: var(--ink);
+    background: white;
+    resize: vertical;
+    min-height: 80px;
+    transition: border-color 0.2s;
+    outline: none;
+  }
+
+  textarea:focus { border-color: var(--coral); }
+  textarea::placeholder { color: var(--mist); }
+
+  .photo-zone {
+    border: 1.5px dashed var(--sand-dark);
+    border-radius: 3px;
+    padding: 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-bottom: 24px;
+    position: relative;
+    background: white;
+  }
+
+  .photo-zone:hover { border-color: var(--coral); background: var(--foam); }
+  .photo-zone input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+
+  .photo-icon { font-size: 28px; margin-bottom: 6px; }
+  .photo-hint { font-size: 12px; color: var(--mist); }
+  .photo-name { font-size: 12px; color: var(--coral); font-weight: 700; margin-top: 4px; }
+
+  .photo-preview {
+    max-width: 100%;
+    max-height: 180px;
+    border-radius: 3px;
+    object-fit: cover;
+    width: 100%;
+    display: none;
+  }
+
+  .generate-btn {
+    width: 100%;
+    padding: 16px;
+    background: linear-gradient(135deg, var(--coral), var(--coral-light));
+    border: none;
+    border-radius: 3px;
+    font-family: 'Playfair Display', serif;
+    font-size: 17px;
+    font-style: italic;
+    color: white;
+    cursor: pointer;
+    letter-spacing: 0.02em;
+    transition: all 0.2s;
+    box-shadow: 0 4px 16px rgba(201,106,62,0.35);
+  }
+
+  .generate-btn:hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(201,106,62,0.45);
+  }
+
+  .generate-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+  .results-card {
+    background: var(--foam);
+    border-radius: 4px;
+    max-width: 680px;
+    margin: 0 auto;
+    color: var(--ink);
+    box-shadow: 0 8px 40px rgba(0,0,0,0.3);
+    overflow: hidden;
+    display: none;
+  }
+
+  .results-header {
+    background: var(--navy);
+    padding: 20px 28px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .results-header-text {
+    font-family: 'Playfair Display', serif;
+    font-size: 18px;
+    color: var(--sand);
+  }
+
+  .results-header-sub {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: var(--mist);
+    letter-spacing: 0.15em;
+    margin-top: 2px;
+  }
+
+  .caption-list { padding: 8px 0; }
+
+  .caption-item {
+    padding: 24px 28px;
+    border-bottom: 1px solid var(--sand-dark);
+    transition: background 0.15s;
+  }
+
+  .caption-item:last-child { border-bottom: none; }
+  .caption-item:hover { background: white; }
+
+  .caption-tone {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+    display: inline-block;
+    padding: 3px 8px;
+    border-radius: 2px;
+  }
+
+  .tone-hype { background: rgba(201,106,62,0.12); color: var(--coral); }
+  .tone-heart { background: rgba(26,44,66,0.08); color: var(--navy); }
+  .tone-funny { background: rgba(232,184,75,0.2); color: #8a6a1a; }
+
+  .caption-text {
+    font-size: 15px;
+    line-height: 1.7;
+    color: var(--ink);
+    margin-bottom: 14px;
+  }
+
+  .copy-btn {
+    border: 1.5px solid var(--sand-dark);
+    background: white;
+    border-radius: 3px;
+    padding: 7px 14px;
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    cursor: pointer;
+    color: var(--navy);
+    transition: all 0.15s;
+  }
+
+  .copy-btn:hover { background: var(--navy); color: var(--sand); border-color: var(--navy); }
+  .copy-btn.copied { background: var(--navy); color: var(--sun); border-color: var(--navy); }
+
+  .loading-state {
+    text-align: center;
+    padding: 48px 28px;
+    display: none;
+  }
+
+  .wave-dots {
+    display: flex;
+    gap: 6px;
+    justify-content: center;
+    margin-bottom: 16px;
+  }
+
+  .wave-dots span {
+    width: 8px; height: 8px;
+    background: var(--coral);
+    border-radius: 50%;
+    animation: wave 1.2s ease-in-out infinite;
+  }
+
+  .wave-dots span:nth-child(2) { animation-delay: 0.15s; }
+  .wave-dots span:nth-child(3) { animation-delay: 0.3s; }
+
+  @keyframes wave {
+    0%, 80%, 100% { transform: translateY(0); opacity: 0.4; }
+    40% { transform: translateY(-10px); opacity: 1; }
+  }
+
+  .loading-text {
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    font-size: 15px;
+    color: var(--mist);
+  }
+
+  .error-msg {
+    background: rgba(201,106,62,0.1);
+    border: 1px solid rgba(201,106,62,0.3);
+    border-radius: 3px;
+    padding: 12px 16px;
+    font-size: 12px;
+    color: var(--coral);
+    margin-top: 16px;
+    display: none;
+    word-break: break-all;
+    font-family: 'DM Mono', monospace;
+  }
+</style>
+</head>
+<body>
+
+<div class="masthead">
+  <div class="masthead-rule"></div>
+  <div class="masthead-eyebrow">Perdido Key · July 2026</div>
+  <h1>Caption <em>Studio</em></h1>
+  <div class="masthead-sub">Generate SMS-ready countdown captions for your crew</div>
+  <div class="masthead-rule" style="margin-top:20px;margin-bottom:0"></div>
+</div>
+
+<!-- API Key -->
+<div class="apikey-bar">
+  <span class="apikey-label">API Key</span>
+  <input type="password" class="apikey-input" id="apiKey" placeholder="sk-ant-..." oninput="onKeyInput()">
+  <span class="apikey-saved" id="keySaved">✓ set</span>
+</div>
+
+<div class="card">
+  <div class="card-label">01 · Mode</div>
+
+  <div class="mode-toggle">
+    <button class="mode-btn active" id="modePreTrip" onclick="setMode('pre')">🌅 Pre-Trip Countdown</button>
+    <button class="mode-btn" id="modeDuring" onclick="setMode('during')">🏖️ Day-of Recap</button>
+  </div>
+
+  <div class="countdown-control">
+    <span class="field-label" id="dayLabel">Days until arrival</span>
+    <div class="day-selector">
+      <div class="stepper">
+        <button class="step-btn" onclick="adjustDay(1)">▲</button>
+        <button class="step-btn" onclick="adjustDay(-1)">▼</button>
+      </div>
+      <div class="day-num" id="dayNum">42</div>
+      <div class="day-context">
+        <strong id="dayContext">6 weeks out</strong>
+        <span id="dayDate">Check-in: July 11</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="scene-area">
+    <span class="field-label" id="promptLabel">Describe the scene or vibe (optional but helps)</span>
+    <textarea id="scenePrompt" placeholder="e.g. aerial of Perdido Key, turquoise water, white sand…"></textarea>
+  </div>
+
+  <div class="photo-zone" id="photoZone">
+    <input type="file" accept="image/*" id="photoInput" onchange="handlePhoto(event)">
+    <div id="photoPlaceholder">
+      <div class="photo-icon">📷</div>
+      <div class="photo-hint">Drop a photo or tap to upload</div>
+      <div class="photo-hint" style="margin-top:2px">Claude will read it if included</div>
+    </div>
+    <img class="photo-preview" id="photoPreview" alt="Preview">
+    <div class="photo-name" id="photoName"></div>
+  </div>
+
+  <button class="generate-btn" id="generateBtn" onclick="generate()">
+    Write my captions →
+  </button>
+  <div class="error-msg" id="errorMsg"></div>
+</div>
+
+<!-- Results -->
+<div class="results-card" id="resultsCard">
+  <div class="results-header">
+    <div>
+      <div class="results-header-text">Your captions are ready</div>
+      <div class="results-header-sub">Pick one · tap to copy · paste into SMS</div>
+    </div>
+    <button onclick="resetResults()" style="background:transparent;border:1px solid rgba(255,255,255,0.2);color:var(--mist);padding:8px 14px;border-radius:3px;cursor:pointer;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.1em;">NEW ↺</button>
+  </div>
+
+  <div class="loading-state" id="loadingState">
+    <div class="wave-dots"><span></span><span></span><span></span></div>
+    <div class="loading-text">Writing your captions…</div>
+  </div>
+
+  <div class="caption-list" id="captionList"></div>
+</div>
+
+<script>
+  let mode = 'pre';
+  let dayValue = 42;
+  let photoBase64 = null;
+  let photoMediaType = null;
+
+  // Calculate actual days until July 11
+  function calcDaysUntil() {
+    const today = new Date();
+    const trip = new Date('2026-07-11');
+    const diff = Math.ceil((trip - today) / (1000 * 60 * 60 * 24));
+    return Math.max(1, diff);
+  }
+
+  dayValue = calcDaysUntil();
+
+  function onKeyInput() {
+    const val = document.getElementById('apiKey').value.trim();
+    const saved = document.getElementById('keySaved');
+    if (val.startsWith('sk-ant-') && val.length > 20) {
+      saved.style.opacity = '1';
+    } else {
+      saved.style.opacity = '0';
+    }
+  }
+
+  function setMode(m) {
+    mode = m;
+    document.getElementById('modePreTrip').classList.toggle('active', m === 'pre');
+    document.getElementById('modeDuring').classList.toggle('active', m === 'during');
+
+    if (m === 'pre') {
+      dayValue = calcDaysUntil();
+      document.getElementById('dayLabel').textContent = 'Days until arrival';
+      document.getElementById('promptLabel').textContent = 'Describe the scene or vibe (optional but helps)';
+      document.getElementById('scenePrompt').placeholder = 'e.g. aerial of Perdido Key, turquoise water, white sand…';
+    } else {
+      dayValue = 1;
+      document.getElementById('dayLabel').textContent = 'Trip day number';
+      document.getElementById('promptLabel').textContent = "Describe a highlight from yesterday (or today's plan)";
+      document.getElementById('scenePrompt').placeholder = 'e.g. beach bonfire, s\'mores, everyone stayed up too late…';
+    }
+    updateDayDisplay();
+  }
+
+  function adjustDay(delta) {
+    const max = mode === 'pre' ? 90 : 7;
+    dayValue = Math.min(max, Math.max(1, dayValue + delta));
+    updateDayDisplay();
+  }
+
+  function updateDayDisplay() {
+    document.getElementById('dayNum').textContent = dayValue;
+    if (mode === 'pre') {
+      const d = dayValue;
+      let context = d === 1 ? 'Tomorrow!' : d <= 7 ? 'This week!' : d <= 14 ? '2 weeks out' : `${Math.ceil(d/7)} weeks out`;
+      document.getElementById('dayContext').textContent = context;
+      document.getElementById('dayDate').textContent = 'Check-in: July 11';
+    } else {
+      const labels = ['','Saturday','Sunday','Monday','Tuesday','Wednesday','Thursday','Friday'];
+      document.getElementById('dayContext').textContent = `Day ${dayValue} of 7`;
+      document.getElementById('dayDate').textContent = labels[dayValue] || '';
+    }
+  }
+
+  function handlePhoto(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    document.getElementById('photoName').textContent = file.name;
+    photoMediaType = file.type;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      const result = ev.target.result;
+      photoBase64 = result.split(',')[1];
+      const preview = document.getElementById('photoPreview');
+      preview.src = result;
+      preview.style.display = 'block';
+      document.getElementById('photoPlaceholder').style.display = 'none';
+    };
+    reader.readAsDataURL(file);
+  }
+
+  function buildSystemPrompt() {
+    return `You are a warm, creative copywriter helping plan a beach vacation group trip to Perdido Key, Florida. The group is ~25 people, a mix of families and friends. You write SMS captions to accompany photos — short, punchy, human, never corny or cliche. Plain language, no hashtags, minimal emojis. Each caption should feel like it came from the host, not a marketing team. Always respond with valid JSON only — no markdown, no preamble, no explanation.`;
+  }
+
+  function buildUserPrompt() {
+    const scene = document.getElementById('scenePrompt').value.trim();
+    if (mode === 'pre') {
+      const daysText = dayValue === 1 ? 'TOMORROW' : `${dayValue} days`;
+      return `Write 3 SMS captions for a pre-trip countdown photo message.
+- ${daysText} until our group of ~25 arrives at Perdido Key, FL for a week (July 11-18, 2026)
+- The house is Sandy Key 628 on Perdido Key
+${scene ? `- Scene: ${scene}` : '- No photo described'}
+
+3 captions:
+1. HYPE - energetic, builds excitement
+2. HEARTFELT - warm, about the people
+3. FUNNY - light, playful, self-aware
+
+Respond ONLY with this JSON, nothing else:
+{"captions":[{"tone":"Hype","text":"..."},{"tone":"Heartfelt","text":"..."},{"tone":"Funny","text":"..."}]}`;
+    } else {
+      return `Write 3 SMS captions for a during-trip day ${dayValue} of 7 update.
+- Perdido Key, FL, Sandy Key 628, ~25 people
+${scene ? `- Scene: ${scene}` : ''}
+
+3 captions:
+1. HYPE - captures the moment
+2. HEARTFELT - gratitude, presence
+3. FUNNY - makes the group laugh
+
+Respond ONLY with this JSON, nothing else:
+{"captions":[{"tone":"Hype","text":"..."},{"tone":"Heartfelt","text":"..."},{"tone":"Funny","text":"..."}]}`;
+    }
+  }
+
+  async function generate() {
+    const apiKey = document.getElementById('apiKey').value.trim();
+    if (!apiKey) {
+      const errEl = document.getElementById('errorMsg');
+      errEl.textContent = 'Please enter your Anthropic API key above.';
+      errEl.style.display = 'block';
+      return;
+    }
+
+    const btn = document.getElementById('generateBtn');
+    btn.disabled = true;
+    document.getElementById('errorMsg').style.display = 'none';
+
+    const resultsCard = document.getElementById('resultsCard');
+    const loadingState = document.getElementById('loadingState');
+    const captionList = document.getElementById('captionList');
+
+    resultsCard.style.display = 'block';
+    loadingState.style.display = 'block';
+    captionList.innerHTML = '';
+    resultsCard.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+    let raw = '';
+    try {
+      const userContent = [];
+      if (photoBase64 && photoMediaType) {
+        userContent.push({ type: 'image', source: { type: 'base64', media_type: photoMediaType, data: photoBase64 } });
+      }
+      userContent.push({ type: 'text', text: buildUserPrompt() });
+
+      const response = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': apiKey,
+          'anthropic-version': '2023-06-01',
+          'anthropic-dangerous-direct-browser-access': 'true'
+        },
+        body: JSON.stringify({
+          model: 'claude-sonnet-4-20250514',
+          max_tokens: 1000,
+          system: buildSystemPrompt(),
+          messages: [{ role: 'user', content: userContent }]
+        })
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error?.message || `HTTP ${response.status}`);
+      }
+
+      raw = data.content.map(b => b.text || '').join('');
+      const match = raw.match(/\{[\s\S]*\}/);
+      if (!match) throw new Error('No JSON in response: ' + raw.slice(0, 300));
+      const parsed = JSON.parse(match[0]);
+      const captions = parsed.captions;
+
+      loadingState.style.display = 'none';
+
+      const toneClass = { 'Hype': 'tone-hype', 'Heartfelt': 'tone-heart', 'Funny': 'tone-funny' };
+      const toneEmoji = { 'Hype': '⚡', 'Heartfelt': '🌊', 'Funny': '😂' };
+
+      captions.forEach((cap) => {
+        const item = document.createElement('div');
+        item.className = 'caption-item';
+        item.innerHTML = `
+          <span class="caption-tone ${toneClass[cap.tone] || 'tone-hype'}">${toneEmoji[cap.tone] || ''} ${cap.tone}</span>
+          <div class="caption-text">${cap.text}</div>
+          <button class="copy-btn" onclick="copyCaption(this, ${JSON.stringify(cap.text)})">Copy text</button>
+        `;
+        captionList.appendChild(item);
+      });
+
+    } catch (err) {
+      loadingState.style.display = 'none';
+      resultsCard.style.display = 'none';
+      const errEl = document.getElementById('errorMsg');
+      errEl.textContent = `Error: ${err.message}${raw ? ' | response: ' + raw.slice(0, 200) : ''}`;
+      errEl.style.display = 'block';
+    }
+
+    btn.disabled = false;
+  }
+
+  function copyCaption(btn, text) {
+    navigator.clipboard.writeText(text).then(() => {
+      btn.textContent = 'Copied ✓';
+      btn.classList.add('copied');
+      setTimeout(() => { btn.textContent = 'Copy text'; btn.classList.remove('copied'); }, 2000);
+    });
+  }
+
+  function resetResults() {
+    document.getElementById('resultsCard').style.display = 'none';
+    document.getElementById('captionList').innerHTML = '';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  updateDayDisplay();
+</script>
+</body>
+</html>
